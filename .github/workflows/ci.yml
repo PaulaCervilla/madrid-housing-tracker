@@ -35,7 +35,7 @@ jobs:
 
       - name: Upload generated dashboard (if any)
         if: success()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: dashboard-${{ matrix.python-version }}
           path: output/dashboard.html
