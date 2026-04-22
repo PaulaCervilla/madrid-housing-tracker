@@ -38,6 +38,10 @@ jobs:
           pip install -r requirements.txt
 
       - name: Build dashboard
+        env:
+          # Use the bundled seed data — keeps the deploy fast and
+          # deterministic, independent of INE API availability.
+          USE_SEED_DATA: "1"
         run: python -m src.pipeline
 
       - name: Prepare site

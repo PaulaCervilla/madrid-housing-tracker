@@ -12,7 +12,11 @@ log = logging.getLogger(__name__)
 
 
 def http_get_json(url: str, params: dict | None = None) -> dict | list:
-    """GET a URL and return parsed JSON, with exponential-backoff retries."""
+    """GET a URL and return parsed JSON, with exponential-backoff retries.
+
+    If the server replies with non-JSON content (e.g. an HTML error page),
+    we log a snippet of the body so the failure is easy to diagnose.
+    """
     headers = {"User-Agent": config.USER_AGENT, "Accept": "application/json"}
     last_error: Exception | None = None
     for attempt in range(1, config.MAX_RETRIES + 1):
@@ -24,7 +28,14 @@ def http_get_json(url: str, params: dict | None = None) -> dict | list:
                 timeout=config.REQUEST_TIMEOUT,
             )
             resp.raise_for_status()
-            return resp.json()
+            try:
+                return resp.json()
+            except ValueError as exc:
+                snippet = resp.text[:200].replace("\n", " ")
+                raise ValueError(
+                    f"Non-JSON response (Content-Type={resp.headers.get('content-type')!r}): "
+                    f"{snippet!r}"
+                ) from exc
         except (requests.RequestException, ValueError) as exc:
             last_error = exc
             wait = 2 ** (attempt - 1)

@@ -126,9 +126,11 @@ def chart_absolute_prices(aff: pd.DataFrame) -> go.Figure:
 
     fig.update_layout(
         height=420,
-        yaxis=dict(title="Compra (€/m²)", titlefont=dict(color=BRAND_PRIMARY)),
-        yaxis2=dict(title="Alquiler (€/m²/mes)", overlaying="y", side="right",
-                    showgrid=False, titlefont=dict(color=BRAND_TEAL)),
+        yaxis=dict(title=dict(text="Compra (€/m²)",
+                              font=dict(color=BRAND_PRIMARY))),
+        yaxis2=dict(title=dict(text="Alquiler (€/m²/mes)",
+                               font=dict(color=BRAND_TEAL)),
+                    overlaying="y", side="right", showgrid=False),
         legend=dict(orientation="h", y=-0.18, x=0.5, xanchor="center"),
         margin=dict(l=60, r=60, t=30, b=60),
     )
