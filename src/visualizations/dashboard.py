@@ -301,6 +301,8 @@ header p  { color: var(--muted); margin: 6px 0 0; max-width: 720px; }
 
 footer { color: var(--muted); font-size: 12px; margin-top: 30px;
          text-align: center; }
+footer a { color: var(--brand); text-decoration: none; font-weight: 600; }
+footer a:hover { text-decoration: underline; }
 """
 
 
@@ -531,6 +533,11 @@ def build_dashboard(aff: pd.DataFrame) -> Path:
     Fuentes: INE (IPV, IPVA, IPC, EAES) · Cálculos propios.
     Las cifras absolutas se anclan a precios medios públicos de Madrid de 2015
     y deben interpretarse como estimaciones de tendencia, no como tasaciones.
+    <br><br>
+    <a href="https://github.com/PaulaCervilla/madrid-housing-tracker"
+       target="_blank" rel="noopener">
+      &lt;/&gt; Código fuente en GitHub
+    </a>
   </footer>
 </div>
 </body>
