@@ -38,10 +38,9 @@ jobs:
           pip install -r requirements.txt
 
       - name: Build dashboard
-        env:
-          # Use the bundled seed data — keeps the deploy fast and
-          # deterministic, independent of INE API availability.
-          USE_SEED_DATA: "1"
+        # The pipeline tries the live INE API first and falls back to the
+        # bundled seed CSVs if the request fails. Set USE_SEED_DATA=1 here
+        # to force seed-only (e.g. while debugging).
         run: python -m src.pipeline
 
       - name: Prepare site

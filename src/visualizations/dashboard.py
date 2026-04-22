@@ -299,6 +299,38 @@ header p  { color: var(--muted); margin: 6px 0 0; max-width: 720px; }
 .result ul { margin: 14px 0 0; padding-left: 18px; color: #333; font-size: 14px; }
 .result ul li { margin-bottom: 4px; }
 
+/* Personal calculator (number inputs) */
+.pcalc { display: grid; gap: 16px;
+         grid-template-columns: 1fr; align-items: start; }
+@media (min-width: 800px) { .pcalc { grid-template-columns: 1fr 1fr; } }
+.pcalc .inputs { display: grid; gap: 12px;
+                 grid-template-columns: 1fr 1fr; }
+.pcalc .inputs .full { grid-column: 1 / -1; }
+.pcalc label { display: block; font-size: 12px; color: var(--muted);
+               text-transform: uppercase; letter-spacing: .05em;
+               margin-bottom: 4px; }
+.pcalc input[type=number] {
+  width: 100%; padding: 10px 12px; font-size: 15px;
+  border: 1px solid var(--border); border-radius: 8px;
+  background: #fafafa; color: var(--ink);
+  font-family: inherit;
+}
+.pcalc input[type=number]:focus {
+  outline: none; border-color: var(--brand);
+  background: #fff; box-shadow: 0 0 0 3px rgba(192,57,43,.12);
+}
+.pcalc .result h3 { margin: 0 0 8px; font-size: 15px; color: var(--ink); }
+.pcalc .row-out { display: flex; justify-content: space-between;
+                  padding: 6px 0; border-bottom: 1px dashed var(--border);
+                  font-size: 14px; }
+.pcalc .row-out:last-child { border-bottom: 0; }
+.pcalc .row-out b { color: var(--brand); }
+.pcalc .verdict { margin-top: 14px; padding: 10px 12px;
+                  border-radius: 8px; font-size: 13px; }
+.pcalc .verdict.ok   { background: #e8f5e9; color: #1e6b2a; }
+.pcalc .verdict.warn { background: #fff4e5; color: #8a5a00; }
+.pcalc .verdict.bad  { background: #fdecea; color: #922b21; }
+
 footer {
   background: #1a1a2e; color: #cfd2da;
   text-align: center; padding: 28px 16px; font-size: 13px;
@@ -461,6 +493,149 @@ def _calculator_html(aff: pd.DataFrame) -> str:
 """
 
 
+PERSONAL_CALC_JS = """
+<script>
+function fmtEuroP(n) {
+  if (!isFinite(n)) return '—';
+  return new Intl.NumberFormat('es-ES', {style:'currency', currency:'EUR',
+                                          maximumFractionDigits:0}).format(n);
+}
+function fmtNumP(n, d=1) {
+  if (!isFinite(n)) return '—';
+  return new Intl.NumberFormat('es-ES',
+    {minimumFractionDigits:d, maximumFractionDigits:d}).format(n);
+}
+
+function recomputePersonal() {
+  const grossYear = parseFloat(document.getElementById('p-salary').value) || 0;
+  const saved     = parseFloat(document.getElementById('p-saved').value)  || 0;
+  const target    = parseFloat(document.getElementById('p-target').value) || 0;
+  const rentMonth = parseFloat(document.getElementById('p-rent').value)   || 0;
+  const dpPct     = (parseFloat(document.getElementById('p-dp').value) || 20) / 100;
+  const savePct   = (parseFloat(document.getElementById('p-save-pct').value) || 20) / 100;
+
+  // Net income approximation: 22% deductions on average for Spain.
+  const net = grossYear * 0.78;
+  const monthlyNet = net / 12;
+  const monthlyExpenses = monthlyNet - rentMonth;
+  // What you can actually save = (net income after rent) × savePct.
+  // If user already has a rent expense, only the post-rent surplus is savable.
+  const annualSavings = Math.max(0, (monthlyExpenses * 12) * savePct);
+
+  const downPayment = target * dpPct;
+  const stillNeededDP = Math.max(0, downPayment - saved);
+  const yearsToDP = annualSavings > 0 ? stillNeededDP / annualSavings : Infinity;
+
+  const stillNeededFull = Math.max(0, target - saved);
+  const yearsToFull = annualSavings > 0 ? stillNeededFull / annualSavings : Infinity;
+
+  const rentBurden = grossYear > 0 ? (rentMonth * 12 / grossYear) * 100 : NaN;
+  const priceToIncome = grossYear > 0 ? target / grossYear : NaN;
+
+  document.getElementById('p-out-net').textContent     = fmtEuroP(net) + ' / año';
+  document.getElementById('p-out-savings').textContent = fmtEuroP(annualSavings) + ' / año';
+  document.getElementById('p-out-dp').textContent      = fmtEuroP(downPayment);
+  document.getElementById('p-out-still-dp').textContent = fmtEuroP(stillNeededDP);
+  document.getElementById('p-out-years-dp').textContent =
+    isFinite(yearsToDP) ? fmtNumP(yearsToDP, 1) + ' años' : '—';
+  document.getElementById('p-out-years-full').textContent =
+    isFinite(yearsToFull) ? fmtNumP(yearsToFull, 1) + ' años' : '—';
+  document.getElementById('p-out-burden').textContent =
+    isFinite(rentBurden) ? fmtNumP(rentBurden, 1) + '%' : '—';
+  document.getElementById('p-out-pti').textContent =
+    isFinite(priceToIncome) ? fmtNumP(priceToIncome, 1) + '×' : '—';
+
+  // Verdict (qualitative).
+  const verdict = document.getElementById('p-verdict');
+  verdict.classList.remove('ok','warn','bad');
+  if (annualSavings <= 0) {
+    verdict.textContent = 'Con estos datos no te queda margen de ahorro tras pagar el alquiler.';
+    verdict.classList.add('bad');
+  } else if (yearsToDP <= 5) {
+    verdict.textContent = '✅ Objetivo alcanzable: podrías reunir la entrada en menos de 5 años.';
+    verdict.classList.add('ok');
+  } else if (yearsToDP <= 10) {
+    verdict.textContent = '⚠️ Plazo realista pero exigente: entre 5 y 10 años para la entrada.';
+    verdict.classList.add('warn');
+  } else {
+    verdict.textContent = '🚧 Plazo muy largo: más de 10 años para la entrada con este ritmo de ahorro.';
+    verdict.classList.add('bad');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  ['p-salary','p-saved','p-target','p-rent','p-dp','p-save-pct'].forEach(id => {
+    document.getElementById(id).addEventListener('input', recomputePersonal);
+  });
+  recomputePersonal();
+});
+</script>
+"""
+
+
+def _personal_calculator_html() -> str:
+    return f"""
+<section class="card">
+  <h2>Tu situación personal</h2>
+  <p class="lede">Introduce tus datos reales para estimar cuánto puedes ahorrar
+     al año y en cuántos años podrías comprar la vivienda que te interesa.
+     Todo se calcula en tu navegador, no se envía nada.</p>
+  <div class="pcalc">
+    <div class="inputs">
+      <div>
+        <label>Sueldo bruto anual (€)</label>
+        <input type="number" id="p-salary" min="0" step="1000" value="35000">
+      </div>
+      <div>
+        <label>Ahorrado actualmente (€)</label>
+        <input type="number" id="p-saved" min="0" step="1000" value="15000">
+      </div>
+      <div>
+        <label>Precio de la vivienda objetivo (€)</label>
+        <input type="number" id="p-target" min="0" step="5000" value="350000">
+      </div>
+      <div>
+        <label>Alquiler actual (€/mes)</label>
+        <input type="number" id="p-rent" min="0" step="50" value="900">
+      </div>
+      <div>
+        <label>% de entrada exigida</label>
+        <input type="number" id="p-dp" min="0" max="100" step="1"
+               value="{int(config.DEFAULT_DOWN_PAYMENT_RATIO*100)}">
+      </div>
+      <div>
+        <label>% del sobrante que ahorras</label>
+        <input type="number" id="p-save-pct" min="0" max="100" step="1"
+               value="{int(config.DEFAULT_SAVINGS_RATE*100)}">
+      </div>
+    </div>
+
+    <div class="result">
+      <h3>Resultado</h3>
+      <div class="row-out"><span>Sueldo neto estimado</span>
+                           <b id="p-out-net">—</b></div>
+      <div class="row-out"><span>Ahorro disponible al año</span>
+                           <b id="p-out-savings">—</b></div>
+      <div class="row-out"><span>Entrada necesaria</span>
+                           <b id="p-out-dp">—</b></div>
+      <div class="row-out"><span>Te falta para la entrada</span>
+                           <b id="p-out-still-dp">—</b></div>
+      <div class="row-out"><span>Años hasta tener la entrada</span>
+                           <b id="p-out-years-dp">—</b></div>
+      <div class="row-out"><span>Años para comprar al contado</span>
+                           <b id="p-out-years-full">—</b></div>
+      <div class="row-out"><span>Carga del alquiler actual</span>
+                           <b id="p-out-burden">—</b></div>
+      <div class="row-out"><span>Precio / sueldo bruto anual</span>
+                           <b id="p-out-pti">—</b></div>
+      <div id="p-verdict" class="verdict">—</div>
+    </div>
+  </div>
+</section>
+{PERSONAL_CALC_JS}
+"""
+
+
 def build_dashboard(aff: pd.DataFrame) -> Path:
     """Render the dashboard to `output/dashboard.html` and return the path."""
     kpis = _kpis(aff)
@@ -533,6 +708,8 @@ def build_dashboard(aff: pd.DataFrame) -> Path:
   </div>
 
   {_calculator_html(aff)}
+
+  {_personal_calculator_html()}
 
   <footer>
     <div>
