@@ -93,10 +93,14 @@ def chart_price_vs_rent_index(aff: pd.DataFrame) -> go.Figure:
         ))
 
     fig.update_layout(
-        height=420,
+        height=300,
         yaxis_title=f"Índice (base {base_year} = 100)",
         xaxis_title="",
-        legend=dict(orientation="h", y=-0.18, x=0.5, xanchor="center"),
+        legend=dict(orientation="h", y=-0.25, x=0.5, xanchor="center", font=dict(size=11)),
+        margin=dict(l=50, r=15, t=30, b=50),
+    )
+    fig.update_layout(
+        margin=dict(l=50, r=15, t=30, b=50), font=dict(size=12)
     )
     return fig
 
@@ -125,14 +129,15 @@ def chart_absolute_prices(aff: pd.DataFrame) -> go.Figure:
         ))
 
     fig.update_layout(
-        height=420,
+        height=300,
         yaxis=dict(title=dict(text="Compra (€/m²)",
-                              font=dict(color=BRAND_PRIMARY))),
+                              font=dict(color=BRAND_PRIMARY, size=11))),
         yaxis2=dict(title=dict(text="Alquiler (€/m²/mes)",
-                               font=dict(color=BRAND_TEAL)),
+                               font=dict(color=BRAND_TEAL, size=11)),
                     overlaying="y", side="right", showgrid=False),
-        legend=dict(orientation="h", y=-0.18, x=0.5, xanchor="center"),
-        margin=dict(l=60, r=60, t=30, b=60),
+        legend=dict(orientation="h", y=-0.25, x=0.5, xanchor="center", font=dict(size=11)),
+        margin=dict(l=55, r=55, t=20, b=50),
+        font=dict(size=11),
     )
     return fig
 
@@ -154,8 +159,9 @@ def chart_price_to_income(aff: pd.DataFrame) -> go.Figure:
         marker_line_width=0,
     )
     fig.update_layout(
-        height=380, coloraxis_showscale=False,
+        height=280, coloraxis_showscale=False,
         yaxis_title="Veces el salario bruto anual",
+        font=dict(size=11),
     )
     return fig
 
@@ -180,8 +186,10 @@ def chart_years_to_save(aff: pd.DataFrame) -> go.Figure:
         hovertemplate="<b>%{x}</b><br>%{y:.1f} años<extra></extra>",
     ))
     fig.update_layout(
-        height=400, yaxis_title="Años de ahorro necesarios",
-        legend=dict(orientation="h", y=-0.18, x=0.5, xanchor="center"),
+        height=300, yaxis_title="Años de ahorro necesarios",
+        legend=dict(orientation="h", y=-0.25, x=0.5, xanchor="center", font=dict(size=11)),
+        margin=dict(l=50, r=15, t=20, b=50),
+        font=dict(size=11),
     )
     return fig
 
@@ -201,11 +209,15 @@ def chart_rent_burden(aff: pd.DataFrame) -> go.Figure:
         y=30, line=dict(color=BRAND_PRIMARY, width=1.5, dash="dash"),
         annotation_text="Umbral 30% (sobreesfuerzo)",
         annotation_position="top left",
-        annotation_font=dict(color=BRAND_PRIMARY, size=11),
+        annotation_font=dict(color=BRAND_PRIMARY, size=10),
     )
     fig.update_traces(line=dict(width=3),
                       hovertemplate="<b>%{x}</b><br>%{y:.1f}%<extra></extra>")
-    fig.update_layout(height=380)
+    fig.update_layout(
+        height=280,
+        font=dict(size=11),
+        margin=dict(l=50, r=15, t=20, b=50),
+    )
     return fig
 
 
@@ -249,66 +261,87 @@ CSS = """
   --border: #e6e3dd;
 }
 * { box-sizing: border-box; }
+html { font-size: 16px; }
 body {
   font-family: Inter, -apple-system, "Segoe UI", Roboto, sans-serif;
   background: var(--bg); color: var(--ink); margin: 0;
 }
-.wrap { max-width: 1200px; margin: 0 auto; padding: 32px 24px 64px; }
-header h1 { margin: 0; font-size: 32px; letter-spacing: -0.02em; }
-header p  { color: var(--muted); margin: 6px 0 0; max-width: 720px; }
+.wrap { max-width: 1200px; margin: 0 auto; padding: 16px; }
+@media (min-width: 480px) { .wrap { padding: 20px; } }
+@media (min-width: 768px) { .wrap { padding: 32px 24px 64px; } }
+header h1 { margin: 0; font-size: 24px; letter-spacing: -0.02em; }
+@media (min-width: 768px) { header h1 { font-size: 32px; } }
+header p  { color: var(--muted); margin: 6px 0 0; max-width: 720px; font-size: 14px; }
+@media (min-width: 768px) { header p { font-size: 15px; } }
 .kpis {
-  display: grid; gap: 14px;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  margin: 28px 0;
+  display: grid; gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  margin: 24px 0;
 }
+@media (min-width: 480px) { .kpis { gap: 14px; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); } }
+@media (min-width: 768px) { .kpis { gap: 14px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); } }
 .kpi {
   background: var(--card); border: 1px solid var(--border); border-radius: 14px;
-  padding: 16px 18px;
+  padding: 12px 14px;
 }
-.kpi .label { font-size: 12px; color: var(--muted); text-transform: uppercase;
-              letter-spacing: 0.05em; }
-.kpi .value { font-size: 28px; font-weight: 700; color: var(--brand);
+@media (min-width: 768px) { .kpi { padding: 16px 18px; } }
+.kpi .label { font-size: 11px; color: var(--muted); text-transform: uppercase;
+              letter-spacing: 0.04em; }
+@media (min-width: 768px) { .kpi .label { font-size: 12px; } }
+.kpi .value { font-size: 22px; font-weight: 700; color: var(--brand);
               margin-top: 4px; }
-.kpi .sub   { font-size: 12px; color: var(--muted); margin-top: 2px; }
+@media (min-width: 768px) { .kpi .value { font-size: 28px; } }
+.kpi .sub   { font-size: 10px; color: var(--muted); margin-top: 2px; }
+@media (min-width: 768px) { .kpi .sub { font-size: 12px; } }
 .card {
   background: var(--card); border: 1px solid var(--border); border-radius: 14px;
-  padding: 18px 18px 8px; margin-bottom: 22px;
+  padding: 14px; margin-bottom: 18px;
 }
-.card h2 { margin: 0 0 8px; font-size: 18px; }
+@media (min-width: 768px) { .card { padding: 18px 18px 8px; margin-bottom: 22px; } }
+.card h2 { margin: 0 0 8px; font-size: 16px; }
+@media (min-width: 768px) { .card h2 { font-size: 18px; } }
 .card p.lede { color: var(--muted); margin: 0 0 12px; font-size: 13px; }
-.grid-2 { display: grid; gap: 22px; grid-template-columns: 1fr; }
-@media (min-width: 900px) { .grid-2 { grid-template-columns: 1fr 1fr; } }
+.grid-2 { display: grid; gap: 18px; grid-template-columns: 1fr; }
+@media (min-width: 768px) { .grid-2 { gap: 22px; grid-template-columns: 1fr 1fr; } }
 
 /* Calculator */
 .calc { display: grid; gap: 16px;
         grid-template-columns: 1fr; align-items: start; }
-@media (min-width: 800px) { .calc { grid-template-columns: 320px 1fr; } }
-.controls label { display: block; font-size: 13px; color: var(--muted);
-                  margin-bottom: 4px; }
+@media (min-width: 640px) { .calc { grid-template-columns: auto 1fr; gap: 20px; } }
+.controls label { display: block; font-size: 12px; color: var(--muted);
+                  margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.03em; }
+@media (min-width: 768px) { .controls label { font-size: 13px; } }
 .controls .row { margin-bottom: 14px; }
 .controls input[type=range] { width: 100%; }
 .controls .val { font-weight: 600; color: var(--ink); }
 .result {
   background: linear-gradient(135deg, #fff8f6, #fdecea);
-  border: 1px solid #f3c4bd; border-radius: 12px; padding: 18px 20px;
+  border: 1px solid #f3c4bd; border-radius: 12px; padding: 14px 16px;
 }
-.result .big { font-size: 42px; font-weight: 800; color: var(--brand);
+@media (min-width: 768px) { .result { padding: 18px 20px; } }
+.result .big { font-size: 32px; font-weight: 800; color: var(--brand);
                line-height: 1; }
-.result .label { font-size: 13px; color: var(--muted);
-                 text-transform: uppercase; letter-spacing: .05em; }
-.result ul { margin: 14px 0 0; padding-left: 18px; color: #333; font-size: 14px; }
-.result ul li { margin-bottom: 4px; }
+@media (min-width: 768px) { .result .big { font-size: 42px; } }
+.result .label { font-size: 12px; color: var(--muted);
+                 text-transform: uppercase; letter-spacing: .04em; }
+@media (min-width: 768px) { .result .label { font-size: 13px; letter-spacing: .05em; } }
+.result ul { margin: 12px 0 0; padding-left: 16px; color: #333; font-size: 13px; }
+@media (min-width: 768px) { .result ul { margin: 14px 0 0; padding-left: 18px; font-size: 14px; } }
+.result ul li { margin-bottom: 3px; }
+@media (min-width: 768px) { .result ul li { margin-bottom: 4px; } }
 
 /* Personal calculator (number inputs) */
 .pcalc { display: grid; gap: 16px;
          grid-template-columns: 1fr; align-items: start; }
-@media (min-width: 800px) { .pcalc { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 768px) { .pcalc { grid-template-columns: 1fr 1fr; } }
 .pcalc .inputs { display: grid; gap: 12px;
-                 grid-template-columns: 1fr 1fr; }
+                 grid-template-columns: 1fr; }
+@media (min-width: 480px) { .pcalc .inputs { grid-template-columns: 1fr 1fr; } }
 .pcalc .inputs .full { grid-column: 1 / -1; }
-.pcalc label { display: block; font-size: 12px; color: var(--muted);
-               text-transform: uppercase; letter-spacing: .05em;
+.pcalc label { display: block; font-size: 11px; color: var(--muted);
+               text-transform: uppercase; letter-spacing: .03em;
                margin-bottom: 4px; }
+@media (min-width: 768px) { .pcalc label { font-size: 12px; letter-spacing: .05em; } }
 .pcalc input[type=number] {
   width: 100%; padding: 10px 12px; font-size: 15px;
   border: 1px solid var(--border); border-radius: 8px;
@@ -319,27 +352,39 @@ header p  { color: var(--muted); margin: 6px 0 0; max-width: 720px; }
   outline: none; border-color: var(--brand);
   background: #fff; box-shadow: 0 0 0 3px rgba(192,57,43,.12);
 }
-.pcalc .result h3 { margin: 0 0 8px; font-size: 15px; color: var(--ink); }
+.pcalc .result h3 { margin: 0 0 8px; font-size: 14px; color: var(--ink); }
+@media (min-width: 768px) { .pcalc .result h3 { font-size: 15px; } }
 .pcalc .row-out { display: flex; justify-content: space-between;
                   padding: 6px 0; border-bottom: 1px dashed var(--border);
-                  font-size: 14px; }
+                  font-size: 12px; }
+@media (min-width: 768px) { .pcalc .row-out { font-size: 14px; } }
 .pcalc .row-out:last-child { border-bottom: 0; }
 .pcalc .row-out b { color: var(--brand); }
-.pcalc .verdict { margin-top: 14px; padding: 10px 12px;
-                  border-radius: 8px; font-size: 13px; }
+.pcalc .verdict { margin-top: 12px; padding: 10px 12px;
+                  border-radius: 8px; font-size: 12px; }
+@media (min-width: 768px) { .pcalc .verdict { margin-top: 14px; font-size: 13px; } }
 .pcalc .verdict.ok   { background: #e8f5e9; color: #1e6b2a; }
 .pcalc .verdict.warn { background: #fff4e5; color: #8a5a00; }
 .pcalc .verdict.bad  { background: #fdecea; color: #922b21; }
 
 footer {
   background: #1a1a2e; color: #cfd2da;
-  text-align: center; padding: 28px 16px; font-size: 13px;
-  margin: 40px -24px -64px;  /* break out of .wrap padding */
+  text-align: center; padding: 20px 16px;
+  margin: 32px -16px -16px;
+  font-size: 12px;
+}
+@media (min-width: 768px) {
+  footer {
+    padding: 28px 16px;
+    margin: 40px -24px -64px;
+    font-size: 13px;
+  }
 }
 footer a { color: #fff; text-decoration: none;
            border-bottom: 1px dotted #cfd2da; }
 footer a:hover { border-bottom-color: #fff; }
-footer .stack { margin-top: 8px; opacity: .65; font-size: 11px; }
+footer .stack { margin-top: 6px; opacity: .65; font-size: 10px; }
+@media (min-width: 768px) { footer .stack { margin-top: 8px; font-size: 11px; } }
 """
 
 
@@ -420,7 +465,11 @@ def _kpi_html(kpis: list[dict]) -> str:
 def _chart_div(fig: go.Figure, div_id: str) -> str:
     return pio.to_html(
         fig, include_plotlyjs=False, full_html=False,
-        div_id=div_id, config={"displayModeBar": False, "responsive": True},
+        div_id=div_id, config={
+            "displayModeBar": False,
+            "responsive": True,
+            "toImageButtonOptions": {"format": "png"}
+        },
     )
 
 
@@ -654,8 +703,11 @@ def build_dashboard(aff: pd.DataFrame) -> Path:
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, viewport-fit=cover">
 <title>Madrid Housing Tracker</title>
+<style>
+  .plotly-graph-div {{ width: 100% !important; height: auto !important; }}
+</style>
 {plotly_cdn}
 <style>{CSS}</style>
 </head>
