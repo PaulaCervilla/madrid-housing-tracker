@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [main]
 
+# Force Node.js 24 for any JavaScript action that hasn't migrated yet.
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
 jobs:
   test:
     runs-on: ubuntu-latest
