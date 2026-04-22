@@ -8,6 +8,13 @@ vivienda con un sueldo medio.
 Genera un **dashboard HTML interactivo** autocontenido (`output/dashboard.html`)
 con gráficos y una calculadora de asequibilidad ajustable.
 
+### 🔗 [Ver el dashboard online](https://<TU_USUARIO>.github.io/madrid-housing-tracker/)
+
+> Sustituye `<TU_USUARIO>` por tu nombre de usuario de GitHub una vez
+> publicado el repositorio. El dashboard se reconstruye automáticamente
+> con cada `push` a `main` y una vez al mes para recoger nuevos datos del
+> INE (ver [`.github/workflows/pages.yml`](.github/workflows/pages.yml)).
+
 ## Datos
 
 Todo viene de fuentes públicas, sin API key:
